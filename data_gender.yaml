@@ -1,0 +1,13 @@
+# dataset configuration for YOLOv8 gender detection
+
+# Set these directories to where your train/val images and labels are.
+# Each image must have a corresponding .txt label file in the same folder
+# (YOLO format: class x_center y_center width height, normalized).
+
+train: input/images/gender/train
+val: input/images/gender/val
+
+# Number of classes and their names.
+# For gender detection we'll use 2 classes: male / female.
+nc: 2
+names: ["male", "female"]

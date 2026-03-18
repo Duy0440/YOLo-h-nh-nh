@@ -19,7 +19,7 @@ import cv2
 
 from src.detector import Detector
 from src.face_recognizer import FaceRecognizer
-
+from src.counter import Counter
 
 # ================= IMAGE =================
 def process_image(input_path, output_path, model_path, conf):
@@ -77,6 +77,7 @@ def process_video(input_path, output_path, model_path, conf):
 
     detector = Detector(model_path, conf)
     face_rec = FaceRecognizer()
+    counter = Counter()   # 🔥 THÊM
 
     cap = cv2.VideoCapture(input_path)
 
@@ -86,7 +87,7 @@ def process_video(input_path, output_path, model_path, conf):
 
     out = None
     frame_count = 0
-    faces = []  # giữ kết quả cũ
+    faces = []
 
     while True:
 
@@ -98,7 +99,10 @@ def process_video(input_path, output_path, model_path, conf):
 
         # ===== YOLO =====
         detections = detector.predict(frame)
-        total = sum(1 for obj in detections if obj["name"] == "person")
+
+        # 🔥 TRACK + COUNT (QUAN TRỌNG)
+        objects = counter.update(detections)
+        total = counter.total()
 
         # ===== scale =====
         h, w = frame.shape[:2]
@@ -106,7 +110,7 @@ def process_video(input_path, output_path, model_path, conf):
         thickness = max(1, int(2 * scale))
         font_scale = max(0.5, 0.6 * scale)
 
-        # 🔥 CHỈ detect mỗi 10 frame (QUAN TRỌNG)
+        # 🔥 FACE mỗi 10 frame
         if frame_count % 10 == 0:
             faces = face_rec.detect_and_recognize(frame)
 
@@ -123,7 +127,14 @@ def process_video(input_path, output_path, model_path, conf):
                         cv2.FONT_HERSHEY_SIMPLEX,
                         font_scale, (0,255,0), thickness)
 
-        # ===== TOTAL =====
+        # ===== DRAW PERSON BOX + ID =====
+        for oid, centroid in objects.items():
+            cx, cy = centroid
+            cv2.putText(frame, f"ID {oid}", (cx - 10, cy - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        font_scale, (255,0,0), thickness)
+
+        # ===== TOTAL (CHUẨN DEMO) =====
         cv2.putText(frame, f"Total: {total}", (10, int(40 * scale)),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     font_scale, (0,0,255), thickness)

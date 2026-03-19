@@ -1,40 +1,26 @@
 from ultralytics import YOLO
 
-
 class Detector:
-
-    def __init__(self, model_path, conf=0.25):
+    def __init__(self, model_path="models/yolov8n.pt", conf=0.3):
         self.model = YOLO(model_path)
         self.conf = conf
 
-    def predict(self, image):
+    def predict(self, frame):
+        results = self.model(frame, conf=self.conf)[0]
 
-        results = []
+        detections = []
 
-        # chạy YOLO
-        output = self.model(image, conf=self.conf, verbose=False)
+        for box in results.boxes:
+            cls = int(box.cls[0])
 
-        # lấy kết quả đầu tiên
-        boxes = output[0].boxes
-
-        if boxes is None:
-            return results
-
-        for box in boxes:
-
-            cls_id = int(box.cls[0])
-            conf = float(box.conf[0])
-
-            # chỉ lấy người (class 0 = person)
-            if cls_id != 0:
+            if cls != 0:  # person
                 continue
 
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-            results.append({
+            detections.append({
                 "name": "person",
-                "box": (x1, y1, x2, y2),
-                "conf": conf
+                "box": (x1, y1, x2, y2)
             })
 
-        return results
+        return detections

@@ -1,32 +1,34 @@
-from ultralytics import YOLO
+import math
+
 
 class Tracker:
-    def __init__(self, model_path="models/yolov8n.pt"):
-        self.model = YOLO(model_path)
+    def __init__(self):
+        self.center_points = {}
+        self.id_count = 0
 
-    def track(self, frame):
-        results = self.model.track(
-            frame,
-            persist=True,
-            tracker="bytetrack.yaml"
-        )[0]
+    def update(self, objects_rect):
+        objects_bbs_ids = []
 
-        objects = []
+        for rect in objects_rect:
+            x1, y1, x2, y2 = rect
 
-        if results.boxes is not None:
-            for box in results.boxes:
-                cls = int(box.cls[0])
+            cx = int((x1 + x2) / 2)
+            cy = int((y1 + y2) / 2)
 
-                if cls != 0:
-                    continue
+            same_object_detected = False
 
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
+            for track_id, pt in self.center_points.items():
+                dist = math.hypot(cx - pt[0], cy - pt[1])
 
-                if box.id is not None:
-                    track_id = int(box.id[0])
-                else:
-                    track_id = -1
+                if dist < 150:  # 🔥 tăng ngưỡng
+                    self.center_points[track_id] = (cx, cy)
+                    objects_bbs_ids.append((x1, y1, x2, y2, track_id))
+                    same_object_detected = True
+                    break
 
-                objects.append((track_id, x1, y1, x2, y2))
+            if not same_object_detected:
+                self.center_points[self.id_count] = (cx, cy)
+                objects_bbs_ids.append((x1, y1, x2, y2, self.id_count))
+                self.id_count += 1
 
-        return objects
+        return objects_bbs_ids

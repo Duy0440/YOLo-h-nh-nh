@@ -19,7 +19,7 @@ class DevNull:
     def flush(self):
         pass
 
-sys.stderr = DevNull()
+#sys.stderr = DevNull()
 
 # ===== TẮT STDOUT (YOLO hay in ra đây) =====
 class DevNullOut:
@@ -30,7 +30,7 @@ class DevNullOut:
 
 # 👉 QUAN TRỌNG: bật/tắt tùy lúc
 # Nếu muốn debug thì comment dòng này
-sys.stdout = DevNullOut()
+#sys.stdout = DevNullOut()
 
 
 # ===== MAIN =====

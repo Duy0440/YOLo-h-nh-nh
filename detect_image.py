@@ -3,6 +3,7 @@ import os
 from src.detector import Detector
 from src.face_recognizer import FaceRecognizer
 
+
 def run_image(image_path):
     print("RUN IMAGE OK")
 
@@ -27,27 +28,32 @@ def run_image(image_path):
         print(f"YOLO OK - found {len(detections)} people")
 
         # ===== VẼ KHUNG NGƯỜI =====
-        for d in detections:
-            x1, y1, x2, y2 = d["box"]
+        for det in detections:
+            x1, y1, x2, y2, conf, cls = det
 
-            # tránh box lỗi
             if x2 <= x1 or y2 <= y1:
                 continue
 
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), thickness)
             cv2.putText(img, "Person", (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0,255,0), thickness)
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
 
         total = len(detections)
 
         # ===== FACE (CROP THEO NGƯỜI) =====
         faces = []
 
-        for d in detections:
-            x1, y1, x2, y2 = d["box"]
+        for det in detections:
+            x1, y1, x2, y2, conf, cls = det
 
             if x2 <= x1 or y2 <= y1:
                 continue
+
+            # clamp tránh lỗi
+            x1 = max(0, x1)
+            y1 = max(0, y1)
+            x2 = min(w, x2)
+            y2 = min(h, y2)
 
             person_crop = img[y1:y2, x1:x2]
 
@@ -75,15 +81,15 @@ def run_image(image_path):
 
             label = "Unknown" if name == "Unknown" else f"{name} {round(score,1)}%"
 
-            cv2.rectangle(img, (x1,y1), (x2,y2), (255,0,0), thickness)
-            cv2.putText(img, label, (x1,y1-10),
-                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255,0,0), thickness)
+            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), thickness)
+            cv2.putText(img, label, (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
 
         # ===== TOTAL =====
-        cv2.putText(img, f"Total: {total}", (20, int(40*scale)),
-                    cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0,0,255), thickness)
+        cv2.putText(img, f"Total: {total}", (20, int(40 * scale)),
+                    cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 255), thickness)
 
-        # ===== SAVE (KHÔNG GHI ĐÈ) =====
+        # ===== SAVE =====
         os.makedirs("output", exist_ok=True)
 
         filename = os.path.basename(image_path)

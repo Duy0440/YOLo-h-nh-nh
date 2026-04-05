@@ -12,26 +12,23 @@ warnings.filterwarnings("ignore")
 # ===== TẮT LOG Python =====
 logging.getLogger().setLevel(logging.ERROR)
 
-# ===== TẮT STDERR =====
+# ===== TẮT STDERR (tuỳ chọn)
 class DevNull:
     def write(self, msg):
         pass
     def flush(self):
         pass
 
-#sys.stderr = DevNull()
+# sys.stderr = DevNull()  # bật nếu muốn
 
-# ===== TẮT STDOUT (YOLO hay in ra đây) =====
+# ===== TẮT STDOUT (YOLO spam)
 class DevNullOut:
     def write(self, msg):
         pass
     def flush(self):
         pass
 
-# 👉 QUAN TRỌNG: bật/tắt tùy lúc
-# Nếu muốn debug thì comment dòng này
-#sys.stdout = DevNullOut()
-
+# sys.stdout = DevNullOut()  # ❌ KHÔNG bật khi debug
 
 # ===== MAIN =====
 import argparse
@@ -44,9 +41,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # 👉 in lại cái cần thiết thôi
-    print = sys.__stdout__.write
-    print(f"Running mode: {args.mode}\n")
+    # ✅ print bình thường
+    print(f"Running mode: {args.mode}")
 
     if args.mode == "image":
         from detect_image import run_image

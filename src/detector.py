@@ -7,21 +7,36 @@ class Detector:
         self.conf = conf
 
     def predict(self, frame):
+
+        h, w = frame.shape[:2]
+
         results = self.model(frame, conf=self.conf)[0]
 
         detections = []
 
+        if results.boxes is None:
+            return detections
+
         for box in results.boxes:
+
             cls = int(box.cls[0])
 
-            if cls != 0:  # chỉ lấy person
+            # chỉ detect người (class 0)
+            if cls != 0:
                 continue
 
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
             conf = float(box.conf[0])
             if conf < 0.5:
                 continue
-            # format chuẩn cho tracker + code mày
+
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+            # tránh bbox vượt khỏi frame
+            x1 = max(0, x1)
+            y1 = max(0, y1)
+            x2 = min(w, x2)
+            y2 = min(h, y2)
+
             detections.append([x1, y1, x2, y2, conf, cls])
 
         return detections

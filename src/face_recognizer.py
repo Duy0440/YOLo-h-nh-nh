@@ -1,6 +1,7 @@
 from deepface import DeepFace
 import os
 import numpy as np
+import cv2
 
 
 class FaceRecognizer:
@@ -22,8 +23,23 @@ class FaceRecognizer:
                 img_path = os.path.join(person_path, img_name)
 
                 try:
-                    embedding = DeepFace.represent(
+                    
+                    faces = DeepFace.extract_faces(
                         img_path=img_path,
+                        detector_backend="retinaface",
+                        enforce_detection=False,
+                        align=True
+                    )
+
+                    if len(faces) == 0:
+                        continue
+
+                    face_img = faces[0]["face"]
+                    face_img = (face_img * 255).astype("uint8")
+                    face_img = cv2.resize(face_img, (160, 160))
+
+                    embedding = DeepFace.represent(
+                        img_path=face_img,
                         model_name="Facenet512",
                         enforce_detection=False
                     )[0]["embedding"]
@@ -59,7 +75,10 @@ class FaceRecognizer:
 
             for face in faces:
 
-                face_img = (face["face"] * 255).astype("uint8")
+                
+                face_img = face["face"]
+                face_img = (face_img * 255).astype("uint8")
+                face_img = cv2.resize(face_img, (160, 160))
 
                 area = face["facial_area"]
                 x, y, w, h = area["x"], area["y"], area["w"], area["h"]
@@ -86,8 +105,8 @@ class FaceRecognizer:
 
                 score = (1 - best_distance) * 100
 
-                # 🔥 THRESHOLD CHUẨN HƠN
-                if best_distance > 0.35:
+                # threshold 
+                if best_distance > 0.6:
                     best_name = "Unknown"
 
                 results.append({
@@ -95,6 +114,9 @@ class FaceRecognizer:
                     "box": (x, y, x + w, y + h),
                     "score": round(score, 2)
                 })
+
+               
+                print(f"{best_name} | distance: {best_distance:.3f}")
 
         except Exception as e:
             print("Face error:", e)

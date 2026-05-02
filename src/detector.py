@@ -21,7 +21,7 @@ class Detector:
 
             cls = int(box.cls[0])
 
-            # chỉ detect người (class 0)
+            
             if cls != 0:
                 continue
 
@@ -31,7 +31,7 @@ class Detector:
 
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-            # tránh bbox vượt khỏi frame
+           
             x1 = max(0, x1)
             y1 = max(0, y1)
             x2 = min(w, x2)

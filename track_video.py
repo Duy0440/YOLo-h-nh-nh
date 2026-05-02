@@ -27,7 +27,7 @@ def run_video(video_path):
     out = None
 
     prev_time = 0
-    smooth_total = 0  # 👉 làm mượt số lượng
+    smooth_total = 0 
 
     while True:
         ret, frame = cap.read()
@@ -43,20 +43,20 @@ def run_video(video_path):
             out = cv2.VideoWriter(save_path, fourcc, 20, (w, h))
             print("Saving video to:", save_path)
 
-        # ===== DETECT =====
+        # detect
         detections = detector.predict(frame)
 
         person_boxes = []
         for det in detections:
             x1, y1, x2, y2, conf, cls = det
 
-            # 👉 lọc detection cho ổn định
+            
             if conf < 0.5:
                 continue
 
             person_boxes.append([int(x1), int(y1), int(x2), int(y2)])
 
-        # ===== TRACK =====
+       
         objects = tracker.update(person_boxes)
 
         active_ids = set()
@@ -68,15 +68,15 @@ def run_video(video_path):
 
             active_ids.add(track_id)
 
-            # ===== BOX =====
+            # box
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness)
 
-            # ===== LABEL =====
+            # label
             label = f"ID {track_id}"
             cv2.putText(frame, label, (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
 
-        # ===== SMOOTH TOTAL =====
+       
         current_total = len(active_ids)
 
         if current_total > smooth_total:
@@ -84,19 +84,19 @@ def run_video(video_path):
         elif current_total < smooth_total:
             smooth_total -= 1
 
-        # ===== FPS =====
+        # FPS
         current_time = time.time()
         fps = 1 / (current_time - prev_time) if prev_time != 0 else 0
         prev_time = current_time
 
-        # ===== UI TEXT =====
+       
         cv2.putText(frame, f"Total: {smooth_total}", (20, int(40 * scale)),
                     cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 255), thickness)
 
         cv2.putText(frame, f"FPS: {int(fps)}", (20, int(80 * scale)),
                     cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
 
-        # ===== SAVE =====
+        
         if out:
             out.write(frame)
 

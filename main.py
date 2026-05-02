@@ -3,34 +3,32 @@ import sys
 import warnings
 import logging
 
-# ===== TẮT LOG TensorFlow =====
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-# ===== TẮT WARNING =====
+
 warnings.filterwarnings("ignore")
 
-# ===== TẮT LOG Python =====
+
 logging.getLogger().setLevel(logging.ERROR)
 
-# ===== TẮT STDERR (tuỳ chọn)
+
 class DevNull:
     def write(self, msg):
         pass
     def flush(self):
         pass
 
-# sys.stderr = DevNull()  # bật nếu muốn
 
-# ===== TẮT STDOUT (YOLO spam)
 class DevNullOut:
     def write(self, msg):
         pass
     def flush(self):
         pass
 
-# sys.stdout = DevNullOut()  # ❌ KHÔNG bật khi debug
+# sys.stdout = DevNullOut()  
 
-# ===== MAIN =====
+
 import argparse
 
 if __name__ == "__main__":
@@ -41,8 +39,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # ✅ print bình thường
     print(f"Running mode: {args.mode}")
+
+    
+    if not os.path.exists(args.source):
+        print(f"Source not found: {args.source}")
+        sys.exit(1)
 
     if args.mode == "image":
         from detect_image import run_image

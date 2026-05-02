@@ -1,18 +1,21 @@
-# Object Detection and Counting using YOLOv8
+# YOLO Human Detection and Counting
 
-## Introduction
-This project implements an object detection and counting system using YOLOv8 and Python. The system can detect objects in images or videos and count the number of detected objects.
+## Description
+This project uses YOLOv8 and OpenCV to detect, track, and count people in images and videos.
 
 ## Features
-- Detect objects in images
-- Detect objects in video
-- Count objects automatically
-- Save output images/videos with bounding boxes
+- Human detection using YOLOv8
+- Object tracking with ID assignment
+- People counting
+- Real-time processing (15–25 FPS)
 
 ## Technologies
 - Python
 - YOLOv8 (Ultralytics)
 - OpenCV
-- NumPy
+- DeepFace (optional)
 
-## Project Structure
+## How to run
+```bash
+pip install -r requirements.txt
+python main.py

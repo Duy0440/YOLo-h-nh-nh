@@ -106,17 +106,18 @@ class FaceRecognizer:
                 score = (1 - best_distance) * 100
 
                 # threshold 
-                if best_distance > 0.6:
+                if best_distance > 0.45:
                     best_name = "Unknown"
 
                 results.append({
                     "name": best_name,
                     "box": (x, y, x + w, y + h),
-                    "score": round(score, 2)
+                    "score": round(score, 2),
+                    "distance": float(best_distance)
                 })
 
                
-                print(f"{best_name} | distance: {best_distance:.3f}")
+                print(f"[DEBUG] {best_name} | distance: {best_distance:.3f}")
 
         except Exception as e:
             print("Face error:", e)

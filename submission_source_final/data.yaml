@@ -1,0 +1,9 @@
+# dataset configuration for YOLOv8
+
+# paths to image folders (relative to workspace root or absolute)
+train: input/images/train
+val: input/images/val
+
+# number of classes and class names
+nc: 1
+names: ["object"]
